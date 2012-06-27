@@ -78,7 +78,10 @@ class Handler extends EventEmitter
     serveGet: (aPath) ->
         endpoint = @
         FS.stat aPath, (err, stats) ->
-            if err then return endpoint.failure(err)
+            if err
+                if err.code is 'ENOENT'
+                    return endpoint.respond404()
+                return endpoint.failure(err)
 
             if stats.isDirectory() then return serveDirectory()
             FS.readFile aPath, (err, buff) ->

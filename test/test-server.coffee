@@ -137,6 +137,17 @@ describe 'default pub', ->
             return done()
         return
 
+
+    it 'should return 404 for not found', (done) ->
+        @expectCount(2)
+
+        REQ.get 'http://localhost:8080/not-found', (err, res, body) ->
+            expect(res.statusCode).toBe(404)
+            body = JSON.parse(body)
+            expect(body.error).toBe("path not found: /not-found")
+            return done()
+        return
+
     return
 
 
