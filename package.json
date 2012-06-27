@@ -1,0 +1,9 @@
+{
+"name": "hippo",
+"version": "0.1.0",
+"bin": {"hippo": "./bin/hippo.js"},
+"description": "File server over HTTP on Node.js",
+"dependencies": {
+    "optimist": "0.3.4"
+}
+}
