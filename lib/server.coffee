@@ -70,8 +70,11 @@ class Handler extends EventEmitter
             for own p, v of aHeaders
                 headers[p] = v
 
-        @response.writeHead(aCode, headers)
-        if @request.method is 'HEAD'
+        return @respond(aCode, headers, aBody)
+
+    respond: (aCode, aHeaders, aBody) ->
+        @response.writeHead(aCode, aHeaders)
+        if not aBody or @request.method is 'HEAD'
             return @response.end()
         return @response.end(aBody)
 
@@ -126,6 +129,28 @@ class Handler extends EventEmitter
         return
 
     servePut: (aPath) ->
+        fstream = null
+        pathExists = yes
+
+        @request.on 'end', =>
+            status = if pathExists then 204 else 201
+            return @respond(status)
+
+        parts = aPath.split('/')
+        parts.shift()
+        abspath = '/'
+        last = parts.length - 1
+        parts.forEach (part, i) ->
+            part or= '/'
+            abspath = PATH.join(abspath, part)
+            pathExists = PATH.existsSync(abspath)
+            if not pathExists and (i isnt last or part is '/')
+                FS.mkdirSync(abspath)
+            return
+
+        if abspath.charAt(abspath.length - 1) isnt '/'
+            fstream = FS.createWriteStream(abspath)
+            @request.pipe(fstream)
         return
 
     serveDelete: (aPath) ->

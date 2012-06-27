@@ -1,3 +1,4 @@
+FS = require 'fs'
 PATH = require 'path'
 EventEmitter = require('events').EventEmitter
 
@@ -160,6 +161,47 @@ describe 'default pub', ->
             return
         return
 
+    return
+
+
+describe 'put docs', ->
+    emitter = new EventEmitter()
+    {startServer, killServer} = createServerRunner()
+    DESTPATH = '/tmp/hippo-test/newdir/img.jpg'
+
+    beforeRun (done) ->
+        opts =
+            basepath: '/tmp'
+
+        startServer opts, (err, proc) ->
+            if err then return done(err)
+            proc.stdout.on 'data', (chunk) ->
+                return emitter.emit('stdout', chunk)
+            proc.stderr.on 'data', (chunk) ->
+                return emitter.emit('stderr', chunk)
+            return done()
+        return
+
+    afterRun (done) ->
+        FS.unlinkSync(DESTPATH)
+        FS.rmdirSync(PATH.dirname(DESTPATH))
+        return killServer(done)
+
+    it 'should', (done) ->
+        fileSize = 0
+        fstream = FS.createReadStream(PATH.join(FIXTURES, 'red-bikes.jpg'))
+
+        fstream.on 'data', (buff) ->
+            fileSize += buff.length
+            return
+
+        rstream = REQ.put 'http://localhost:8080/hippo-test/newdir/img.jpg', (err, res, body) ->
+            expect(res.statusCode).toBe(201)
+            stats = FS.statSync(DESTPATH)
+            expect(stats.size).toBe(fileSize)
+            return done()
+        fstream.pipe(rstream)
+        return
     return
 
 
