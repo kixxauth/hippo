@@ -127,17 +127,6 @@ describe 'default pub', ->
     afterRun(killServer)
 
 
-    it 'should list the root directory', (done) ->
-        @expectCount(2)
-
-        REQ.get 'http://localhost:8080/', (err, res, body) ->
-            expect(res.statusCode).toBe(200)
-            body = JSON.parse(body)
-            expect(Array.isArray(body.result)).toBeTruthy()
-            return done()
-        return
-
-
     it 'should return 404 for not found', (done) ->
         @expectCount(2)
 
@@ -146,6 +135,29 @@ describe 'default pub', ->
             body = JSON.parse(body)
             expect(body.error).toBe("path not found: /not-found")
             return done()
+        return
+
+
+    it 'should return a directory listing', (done) ->
+        @expectCount(10)
+
+        REQ.get 'http://localhost:8080/fixed', (err, res, body) ->
+            expect(res.statusCode).toBe(200)
+            listing = JSON.parse(body).result
+            expect(listing.length).toBe(3)
+            expect('/fixed/foo.txt' in listing).toBeTruthy('foo.txt')
+            expect('/fixed/more/' in listing).toBeTruthy('more/')
+            expect('/fixed/bar.txt' in listing).toBeTruthy('bar.txt')
+
+            REQ.get 'http://localhost:8080/fixed/more/', (err, res, body) ->
+                expect(res.statusCode).toBe(200)
+                listing = JSON.parse(body).result
+                expect(listing.length).toBe(3)
+                expect('/fixed/more/foo2.txt' in listing).toBeTruthy('foo2.txt')
+                expect('/fixed/more/more-again/' in listing).toBeTruthy('more-again/')
+                expect('/fixed/more/bar2.txt' in listing).toBeTruthy('bar2.txt')
+                return done()
+            return
         return
 
     return

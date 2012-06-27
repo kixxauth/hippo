@@ -106,7 +106,13 @@ class Handler extends EventEmitter
                 basepath = endpoint.url.pathname.replace(/\/$/, '')
 
                 list = list.map (filename) ->
-                    return "#{basepath}/#{filename}"
+                    urlpath = "#{basepath}/#{filename}"
+                    abspath = PATH.join(aPath, filename)
+                    stats = FS.statSync(abspath)
+                    if stats.isDirectory()
+                        return urlpath + '/'
+                    else
+                        return urlpath
 
                 body = Handler.stringifyJSON(null, list)
 
