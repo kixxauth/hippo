@@ -9,6 +9,10 @@ exports.main = ->
     opts = OPT.usage("Run the Hippo File Server")
         .options({'basepath': {alias: 'b', demand: yes}})
         .describe('basepath', "The root path of the file directory to serve.")
+        .options({'address': {alias: 'a', 'default': '127.0.0.1'}})
+        .describe('address', "The hostname address to run the server on.")
+        .options({'port': {alias: 'p', 'default': 8080}})
+        .describe('port', "The port to run the server on.")
         .argv
 
     exports.runServer(opts)
@@ -17,8 +21,8 @@ exports.main = ->
 # aOpts.basepath
 exports.runServer = (aOpts) ->
     log = BUN.createLogger({name: 'hippo'})
-    address = 'localhost'
-    port = 8080
+    address = aOpts.address
+    port = aOpts.port
 
     handler = HIP.createHandler(aOpts)
     server = HTTP.createServer(handler)

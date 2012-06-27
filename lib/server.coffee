@@ -1,5 +1,6 @@
 FS = require 'fs'
 PATH = require 'path'
+URL = require 'url'
 CRYP = require 'crypto'
 EventEmitter = require('events').EventEmitter
 
@@ -109,7 +110,7 @@ class Handler extends EventEmitter
                 headers =
                     etag: Handler.etag(body, 'utf8')
 
-                endpoint.respondJSON(body, headers)
+                endpoint.respondJSON(200, body, headers)
                 return
             return
 
@@ -134,8 +135,8 @@ class Handler extends EventEmitter
 
     @etag = (aContent, aEncoding) ->
         shasum = CRYP.createHash('sha1')
-        shasum.update(body, aEncoding)
-        return shasum.digest()
+        shasum.update(aContent, aEncoding)
+        return shasum.digest('hex')
 
 exports.Handler = Handler
 
