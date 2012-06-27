@@ -1,6 +1,7 @@
 HTTP = require 'http'
 
 OPT = require 'optimist'
+BUN = require 'bunyan'
 
 HIP = require './'
 
@@ -15,15 +16,25 @@ exports.main = ->
 
 # aOpts.basepath
 exports.runServer = (aOpts) ->
+    log = BUN.createLogger({name: 'hippo'})
     address = 'localhost'
     port = 8080
 
     handler = HIP.createHandler(aOpts)
     server = HTTP.createServer(handler)
 
+    server.on 'error', ->
+        return log.error.apply(log, arguments)
+
+    server.on 'warn', ->
+        return log.warn.apply(log, arguments)
+
+    server.on 'info', ->
+        return log.info.apply(log, arguments)
+
     server.listen port, address, ->
         {address, port} = server.address()
-        console.log("Hippo File Server running on #{address}:#{port}")
+        server.emit('info', "file server running on #{address}:#{port}")
         return
 
     return

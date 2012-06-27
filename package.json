@@ -4,6 +4,7 @@
 "bin": {"hippo": "./bin/hippo.js"},
 "description": "File server over HTTP on Node.js",
 "dependencies": {
-    "optimist": "0.3.4"
+    "optimist": "0.3.4",
+    "bunyan": "0.10.0"
 }
 }
